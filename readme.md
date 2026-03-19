@@ -46,7 +46,7 @@ gedit uhd/host/lib/usrp/gps_ctrl.cpp
 Full code is there [gps_ctrl.cpp](https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gps_ctrl.cpp)    
 For futur manipulation patch is more interesting :  <br/>
 
-<p align="center"> <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo_patch.png" alt="description" width=350 /> </p>
+<p align="center"> <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo_patch.png" alt="description" width=550 /> </p>
 
 * STEP1 :
 Change regex use :  <br/>
