@@ -48,7 +48,7 @@ For futur manipulation patch is more interesting :  <br/>
 
 <p align="center"> <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo_patch.png" alt="description" width=550 /> </p>
 
-* STEP1 :
+* STEP1 :  <br/>
 Change regex use :  <br/>
 ```
 static const std::regex gp_msg_regex("^\\$G.*$");
@@ -58,7 +58,7 @@ instead  <br/>
 static const std::regex gp_msg_regex("^\\$GP.*,\\*[0-9A-F]{2}$");
 ```
 
-* STEP2
+* STEP2 :  <br/>
 Before :
 ```
 msgs[msg.substr(1, 5)] = msg;
