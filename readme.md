@@ -146,5 +146,3 @@ else:
 ```
 python3 test_usrp.py
 ```
-
-Affichage de GPSDO_LATEST.txt en cours...
