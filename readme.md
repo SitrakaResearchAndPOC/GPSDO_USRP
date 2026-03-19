@@ -114,7 +114,7 @@ ls
 ```
 ./query_gpsdo_sensors 
 ```
-NRURADIO log : 
+Nruradio log ( <bold>GPS ALIGN </bold> is very important): 
 <p align="center"> <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/log_nuradio.png" alt="description" width=550 /> </p>
 
 Adding script bonus on PYTHON
