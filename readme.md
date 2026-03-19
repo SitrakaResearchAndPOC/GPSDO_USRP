@@ -4,7 +4,7 @@
 <p align="center">
   <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo1.png" width="200" />
   <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo2.png" width="200" />
-  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo3.png" width="230" />
+  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo3.png" width="240" />
 </p>
 
 # Installation  
