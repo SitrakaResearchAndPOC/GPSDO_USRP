@@ -1,13 +1,10 @@
 # OCXO 
 # GPDO integrated on USRP
+
 <p align="center">
-  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo1.png" alt="description" width=150 />
-</p>
-<p align="center">
-  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo2.png" alt="description" width=150 />
-</p>
-<p align="center">
-  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo3.png" alt="description" width=150 />
+  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo1.png" width="150" />
+  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo2.png" width="150" />
+  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo3.png" width="150" />
 </p>
 
 # Installation  
