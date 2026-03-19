@@ -90,6 +90,7 @@ cd /usr/local/lib/uhd/utils/
 ```
 ls
 ```
+```
 uhd_images_downloader 
 ```
 Testing synchronization GPS : 
