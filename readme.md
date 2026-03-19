@@ -1,5 +1,10 @@
-# OCXO JOHN WU
+# OCXO 
 # GPDO integrated on USRP
+<p align="center">
+  <img src="https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gpsdo1.png" alt="description" />
+</p>
+
+# Installation  
 Just ignore docker manipulation for real manipulation
 ```
 xhost +
