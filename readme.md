@@ -36,7 +36,28 @@ cd ..
 gedit uhd/host/lib/usrp/gps_ctrl.cpp
 ```
 Full code is there [gps_ctrl.cpp](https://github.com/SitrakaResearchAndPOC/OCXO_USRP/blob/main/gps_ctrl.cpp)    
-For futur manipulation patch is more interesting <br/>
+For futur manipulation patch is more interesting :  <br/>
+* STEP1 :
+Change regex use :  <br/>
+```
+static const std::regex gp_msg_regex("^\\$G.*$");
+```
+instead  <br/>
+```
+static const std::regex gp_msg_regex("^\\$GP.*,\\*[0-9A-F]{2}$");
+```
+
+* STEP2
+Before :
+```
+msgs[msg.substr(1, 5)] = msg;
+```
+add, 
+```
+// change GN by GP
+if(msg.substr(1,2) == "GN"){ msg.replace(1, 2, "GP");}
+```
+Compilation of UHD  
 ```    
 cd uhd/host/
 ```
