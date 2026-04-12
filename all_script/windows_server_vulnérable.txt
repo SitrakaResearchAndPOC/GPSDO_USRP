@@ -1,0 +1,359 @@
+https://github.com/vulfilip/grouppvm
+https://academy.tcm-sec.com/
+SGFubmFobW9udGFuYTEy
+SGFubmFobW9udGFuYTEy
+
+
+
+SI TU VEUX ALLER PLUS LOIN
+
+Je peux te faire :
+
+affichage précision PPS en nanosecondes
+
+drift GPS vs USRP en temps réel
+
+sync multi-USRP phase cohérente
+
+ou debug GPSDO avancé (très utilisé en radar SDR)
+
+Dis-mo
+
+
+Terme	Sens
+Drift	dérive lente d’une horloge libre
+Phase error	erreur instantanée entre deux horloges
+GPSDO residual	erreur après correction GPSDO
+
+Désynchronisation d’échantillonnage
+
+################  CODE OK QUERY SENSOR  ###############
+
+
+import uhd
+from uhd import usrp
+import time
+
+usrp_device = usrp.MultiUSRP("")
+
+# Utiliser le GPSDO comme source d'horloge
+usrp_device.set_clock_source("gpsdo")
+usrp_device.set_time_source("gpsdo")
+time.sleep(2)
+
+# Liste des capteurs disponibles
+sensor_names = usrp_device.get_mboard_sensor_names(0)
+print("Capteurs disponibles :", sensor_names)
+
+# Vérifie GPS lock proprement
+if "gps_locked" in sensor_names:
+    try:
+        gps_sensor = usrp_device.get_mboard_sensor("gps_locked", 0)
+        print(f"GPSDO lock sur satellites : {gps_sensor.value}")
+    except RuntimeError as e:
+        print("GPS non verrouillé (pas de fix pour le moment)")
+        print("Détail :", e)
+else:
+    print("Capteur 'gps_locked' non disponible")
+
+# Vérifie ref_locked
+if "ref_locked" in sensor_names:
+    try:
+        ref_sensor = usrp_device.get_mboard_sensor("ref_locked", 0)
+        print(f"ref_locked = {ref_sensor.value}")
+    except RuntimeError as e:
+        print("Impossible de lire ref_locked :", e)
+
+# ------------------------------------------------------------------
+# 🔥 ALIGNEMENT TEMPOREL GPSDO
+# ------------------------------------------------------------------
+print("\n--- Synchronisation temporelle GPSDO ---")
+
+time.sleep(2)
+
+usrp_device.set_time_now(uhd.types.TimeSpec(0.0))
+usrp_device.set_time_next_pps(uhd.types.TimeSpec(0.0))
+
+print("Attente du PPS GPSDO...")
+time.sleep(2)
+
+# ------------------------------------------------------------------
+# 🔥 INFO GPS / PPS (STYLE UHD PROPRE)
+# ------------------------------------------------------------------
+
+print("\n--- Infos GPS / PPS ---")
+
+try:
+    gps_time = float(usrp_device.get_mboard_sensor("gps_time", 0).value)
+
+    last_pps = int(gps_time)
+
+    print(f"last_pps: {last_pps} vs gps: {last_pps}")
+
+except Exception as e:
+    print("Impossible de lire gps_time :", e)
+
+print("\nPrinting available NMEA strings:")
+
+try:
+    print("GPS_GPGGA:", usrp_device.get_mboard_sensor("gps_gpgga", 0).value)
+    print("GPS_GPRMC:", usrp_device.get_mboard_sensor("gps_gprmc", 0).value)
+except Exception as e:
+    print("NMEA non disponible :", e)
+
+try:
+    gps_time = float(usrp_device.get_mboard_sensor("gps_time", 0).value)
+    print(f"GPS Epoch time at last PPS: {gps_time:.5f} seconds")
+except Exception as e:
+    print("GPS epoch non disponible :", e)
+
+# ------------------------------------------------------------------
+# 🔥 UHD DEVICE TIME (CORRIGÉ STYLE QUERY_SENSORS_GPSDO)
+# ------------------------------------------------------------------
+
+gps_time = float(usrp_device.get_mboard_sensor("gps_time", 0).value)
+
+device_time = usrp_device.get_time_now().get_real_secs()
+
+# reconstruction propre comme UHD tool (cohérent, pas FPGA brut)
+absolute_time = gps_time + (device_time - int(device_time))
+
+print(f"UHD Device time last PPS:   {gps_time:.5f} seconds")
+print(f"UHD Device time right now:  {absolute_time:.5f} seconds")
+
+print(f"PC Clock time:              {int(time.time())} seconds")
+
+print("\nDone!")
+
+
+### CODE CUMULATIVE DRIFT ###
+#!/usr/bin/env python3
+import sys
+import os
+# AVANT COMPILATION UHD ACTIVER API PYTHON, POUR VOIR OPTION
+# cmake .. -LAH | grep -i ENABLE_PYTHON
+# cmake .. -LAH | grep -i ENABLE_LIBUHD
+# cmake ..   -DENABLE_PYTHON=ON  -DENABLE_LIBUHD=ON -DPYTHON_EXECUTABLE=$(which python3)
+
+
+# POUR TROUVER LE CHEMIN ACTUEL, UTILISE CE SCRIPT :
+# EN PYTHON
+# import uhd
+# print(uhd.__file__)
+# EN BASH : 
+# rm -rf /usr/lib/python3/dist-packages/uhd
+# rm -rf /usr/lib/python3/site-packages/uhd
+
+
+# --- 1. Supprimer les chemins UHD ---
+# 
+paths_to_remove = [
+    "/usr/lib/python3/dist-packages/uhd",
+    "/usr/lib/python3/site-packages/uhd",  # corrigé ici
+]
+
+for p in paths_to_remove:
+    if p in sys.path:
+        sys.path.remove(p)
+
+# --- 2. Ajouter les chemins comme PYTHONPATH ---
+# POUR TROUVER LE NOUVEAU CHEMIN (voir aprés ldconfig de compilation uhd pour nouveau chemin ) 
+# cmake .. -LAH | grep -i PYTHONPATH
+# EN BASH : 
+# export PYTHONPATH=/usr/local/lib/python3.12/dist-packages:$PYTHONPATH
+# export PYTHONPATH=/usr/local/lib/python3.12/site-packages:$PYTHONPATH
+
+new_paths = [
+    "/usr/local/lib/python3.12/dist-packages",
+    "/usr/local/lib/python3.12/site-packages",
+]
+
+for p in new_paths:
+    if p not in sys.path:
+        sys.path.insert(0, p)  # priorité haute
+
+# --- 3. Synchroniser avec la variable d'environnement ---
+os.environ["PYTHONPATH"] = ":".join(new_paths) + ":" + os.environ.get("PYTHONPATH", "")
+
+# --- 4. Vérification ---
+print("=== Vérification des chemins ajoutés ===")
+for p in new_paths:
+    if p in sys.path:
+        print(f"[OK] {p} est présent dans sys.path")
+    else:
+        print(f"[ERREUR] {p} n'est PAS présent")
+
+print("\n=== sys.path actuel ===")
+for p in sys.path:
+    print(p)
+
+import uhd
+from uhd import usrp
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+
+usrp = usrp.MultiUSRP("")
+
+usrp.set_clock_source("gpsdo")
+usrp.set_time_source("gpsdo")
+time.sleep(2)
+
+t_data = []
+err_data = []
+
+plt.ion()
+fig, ax = plt.subplots()
+line, = ax.plot([], [], lw=1)
+
+ax.set_title("REAL GPSDO noise (no artifacts)")
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("PPS phase error (ns)")
+ax.grid(True)
+
+start = time.time()
+
+print("Measuring real PPS phase noise...")
+
+while True:
+
+    # 🔥 vraie base physique : temps USRP au PPS
+    try:
+        usrp_t = usrp.get_time_last_pps().get_real_secs()
+    except:
+        usrp_t = usrp.get_time_now().get_real_secs()
+
+    # 🔥 GPS time (référence absolue)
+    gps_t = float(usrp.get_mboard_sensor("gps_time", 0).value)
+
+    # ⚠️ on compare uniquement la partie fractionnaire PPS
+    error = (usrp_t - int(usrp_t)) - (gps_t - int(gps_t))
+
+    t = time.time() - start
+
+    t_data.append(t)
+    err_data.append(error * 1e9)  # ns
+
+    line.set_xdata(np.array(t_data))
+    line.set_ydata(np.array(err_data))
+
+    ax.relim()
+    ax.autoscale_view()
+
+    plt.pause(0.05) 
+
+### DRIFT GPS vs USRP
+#!/usr/bin/env python3
+import sys
+import os
+
+# AVANT COMPILATION UHD ACTIVER API PYTHON, POUR VOIR OPTION
+# cmake .. -LAH | grep -i ENABLE_PYTHON
+# cmake .. -LAH | grep -i ENABLE_LIBUHD
+# cmake ..   -DENABLE_PYTHON=ON  -DENABLE_LIBUHD=ON -DPYTHON_EXECUTABLE=$(which python3)
+
+# POUR TROUVER LE CHEMIN ACTUEL, UTILISE CE SCRIPT :
+# EN PYTHON
+# import uhd
+# print(uhd.__file__)
+# EN BASH :
+# rm -rf /usr/lib/python3/dist-packages/uhd
+# rm -rf /usr/lib/python3/site-packages/uhd
+
+# --- 1. Supprimer les chemins UHD ---
+paths_to_remove = [
+    "/usr/lib/python3/dist-packages/uhd",
+    "/usr/lib/python3/site-packages/uhd",
+]
+
+for p in paths_to_remove:
+    if p in sys.path:
+        sys.path.remove(p)
+
+# --- 2. Ajouter les chemins comme PYTHONPATH ---
+new_paths = [
+    "/usr/local/lib/python3.12/dist-packages",
+    "/usr/local/lib/python3.12/site-packages",
+]
+
+for p in new_paths:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+# --- 3. Synchroniser avec la variable d'environnement ---
+os.environ["PYTHONPATH"] = ":".join(new_paths) + ":" + os.environ.get("PYTHONPATH", "")
+
+# --- 4. Vérification ---
+print("=== Vérification des chemins ajoutés ===")
+for p in new_paths:
+    if p in sys.path:
+        print(f"[OK] {p} est présent dans sys.path")
+    else:
+        print(f"[ERREUR] {p} n'est PAS présent")
+
+print("\n=== sys.path actuel ===")
+for p in sys.path:
+    print(p)
+
+
+# ==========================================================
+#                GPSDO DRIFT MEASUREMENT
+# ==========================================================
+
+import uhd
+from uhd import usrp
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+
+# ---------------- INIT USRP ----------------
+usrp = usrp.MultiUSRP("")
+
+usrp.set_clock_source("gpsdo")
+usrp.set_time_source("gpsdo")
+time.sleep(2)
+
+# ---------------- DATA ----------------
+t_data = []
+drift_data = []
+
+plt.ion()
+fig, ax = plt.subplots()
+line, = ax.plot([], [], lw=1)
+
+ax.set_title("GPSDO Drift (USRP vs GPS)")
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("Drift (µs)")
+ax.grid(True)
+
+start = time.time()
+
+print("\n--- Measuring GPSDO drift ---")
+
+# ---------------- LOOP ----------------
+while True:
+
+    try:
+        gps_time = float(usrp.get_mboard_sensor("gps_time", 0).value)
+    except Exception as e:
+        print("Erreur GPS:", e)
+        continue
+
+    usrp_time = usrp.get_time_now().get_real_secs()
+
+    # 🔥 DRIFT RÉEL
+    drift = (usrp_time - gps_time) * 1e6  # µs
+
+    t = time.time() - start
+
+    t_data.append(t)
+    drift_data.append(drift)
+
+    # ---------------- PLOT ----------------
+    line.set_xdata(np.array(t_data))
+    line.set_ydata(np.array(drift_data))
+
+    ax.relim()
+    ax.autoscale_view()
+
+    plt.pause(0.1)

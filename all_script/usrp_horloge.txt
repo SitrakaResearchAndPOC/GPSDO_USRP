@@ -1,0 +1,105 @@
+SCHÉMA MENTAL COMPLET (IMPORTANT)
+🔵 1. Jitter (bruit rapide)
+
+👉 fluctuation très rapide autour d’une valeur
+
+📊 forme mentale
+GPS :  -------------------- (référence stable)
+USRP:  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+🧠 caractéristiques
+
+très rapide
+
+petite amplitude (ns → µs)
+
+centré autour de 0
+
+causé par :
+
+oscillateur
+
+bruit thermique
+
+PLL GPSDO
+
+🔴 2. Désynchronisation d’échantillonnage (measurement error)
+
+👉 erreur causée par lecture non simultanée
+
+📊 forme mentale
+GPS :      [------]
+USRP: [------]
+🧠 caractéristiques
+
+peut être énorme (ms → s)
+
+non physique
+
+dépend du Python / driver / timing
+
+disparaît si lecture synchrone (PPS)
+
+🟠 3. Drift (dérive lente)
+
+👉 changement progressif dans le temps
+
+📊 forme mentale
+GPS :  -------------------------
+USRP:  /
+      /
+     /
+🧠 caractéristiques
+
+lent (secondes → heures)
+
+causé par :
+
+OCXO / TCXO
+
+GPSDO non verrouillé
+
+température
+
+pente continue
+
+🧠 COMPARAISON CLÉ
+Phénomène	vitesse	cause	forme
+Jitter	rapide	bruit hardware	oscillation
+Désynchronisation	instantané	software timing	sauts
+Drift	lent	dérive oscillateur	pente
+
+
+6. comment reconnaître le jitter réel
+
+Le jitter vrai :
+
+✔ rapide
+✔ centré autour de 0
+✔ faible amplitude
+✔ haute fréquence
+
+0.000001
+-0.000002
+0.000003
+-0.000001
+
+7. comment reconnaître la désynchronisation
+
+✔ sauts brusques
+✔ dépend du moment de lecture
+✔ peut être énorme (ms → s)
+
+0.1
+0.6
+0.05
+0.7
+
+Jitter = fluctuation instantanée (ns–µs), bruit de phase
+DESYNCHRONISATION: ON REGARDE DEUX HORLOGES AUX MEME MOMENTS MAIS CA VA PAS ETRE LU AU MEMES MOMENT
+ADC + OCXO + PLL + bruit,
+
+Désynchronisation (drift / offset) = écart lent et cumulatif entre deux horloges
+cumulative
+
+
+
