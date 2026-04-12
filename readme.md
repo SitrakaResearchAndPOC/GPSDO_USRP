@@ -131,8 +131,7 @@ Adding script bonus on PYTHON
 ```
 gedit test_usrp_gpsdo.py
 ```
-``` 
-
+```
 #!/usr/bin/env python3
 import sys
 import os
