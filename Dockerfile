@@ -80,7 +80,7 @@ RUN uhd_images_downloader
 
 
 # Test GPSDO
-RUN query_gpsdo_sensors || true
+# RUN query_gpsdo_sensors || true
 
 
 CMD ["/bin/bash"]
