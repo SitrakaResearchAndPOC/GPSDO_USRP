@@ -9,7 +9,7 @@ RUN apt-get update -o Acquire::Retries=5 && \
     apt-get install -y \
     -o Acquire::Retries=5 \
     --no-install-recommends \
-    git \
+    git wget \
     cmake \
     build-essential \
     libboost-all-dev \
