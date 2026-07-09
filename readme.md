@@ -44,7 +44,7 @@ docker run -tid --privileged \
   --ulimit rtprio=99 \
   --ulimit memlock=-1 \
   --volume /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
-  --name srsran_pluto \
+  --name gpsdo_usrp  \
   --hostname gpsdo_usrp \
   gpsdo_usrp:v1
 ```
